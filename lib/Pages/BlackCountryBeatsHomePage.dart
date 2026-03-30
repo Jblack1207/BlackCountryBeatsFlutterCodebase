@@ -1,5 +1,4 @@
 //BCB Homepage
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseAuth Helper.dart';
@@ -75,13 +74,33 @@ class _BlackCountryBeatsHomePageState
                               size: 45,
                             ),
                             const SizedBox(width: 6),
-                            Text(
-                              firstName == null ? 'Welcome' : 'Welcome, $firstName',
-                              style: const TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.w900,
+                            firstName == null
+                                ? const Text(
+                              'Welcome',
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontStyle: FontStyle.italic,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                                : RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                children: [
+                                  const TextSpan(
+                                    text: 'Welcome, ',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  TextSpan(
+                                    text: firstName,
+                                    style: const TextStyle(
+                                      color: Color(0xffffc21c),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(width: 165),
@@ -104,6 +123,14 @@ class _BlackCountryBeatsHomePageState
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
                                 fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(top: 5),
+                              child: Icon(
+                                Icons.keyboard_arrow_right,
+                                color: Colors.white,
+                                size: 30,
                               ),
                             ),
                           ]
