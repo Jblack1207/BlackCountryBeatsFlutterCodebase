@@ -1,0 +1,30 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "blackcountrybeats-7b4d1",
+          "appId": "1:915821206949:android:09e655f87b50f8441c9c4c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "blackcountrybeats-7b4d1",
+          "appId": "1:915821206949:ios:d94ac85334cd4fd01c9c4c",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "blackcountrybeats-7b4d1",
+          "configurations": {
+            "android": "1:915821206949:android:09e655f87b50f8441c9c4c",
+            "ios": "1:915821206949:ios:d94ac85334cd4fd01c9c4c"
+          }
+        }
+      }
+    }
+  }
+}
