@@ -58,37 +58,35 @@ class AuthService {
       'createdAt': FieldValue.serverTimestamp(),
     });
     await _auth.signOut();
-
-
   }
-
   Future<void> validateUserAuth() async {
-
     print(_auth.currentUser?.uid);
     print(_auth.currentUser?.email);
   }
-
   Future<String?> getCurrentUserFirstName() async {
     final user = _auth.currentUser;
-
     if (user == null) {
       return null;
     }
-
     final doc = await _firestore.collection('users').doc(user.uid).get();
-
     if (!doc.exists) {
       return null;
     }
-
     final firstName = doc.data()?['firstName'] as String?;
-
     if (firstName == null || firstName.length > 10) {
       return null;
     }
-
     return firstName;
   }
 
-
+  Future<UserCredential> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    return await _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+  }
 }
+

@@ -1,5 +1,6 @@
 // login_screen.dart
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project_cmp3023/Firebase%20Helpers/FirebaseAuth%20Helper.dart';
 import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsHomePage.dart';
@@ -20,6 +21,8 @@ class BlackCountryBeatsLoginScreen extends StatefulWidget {
 class _BlackCountryBeatsLoginScreenState
     extends State<BlackCountryBeatsLoginScreen> {
   bool _obscurePassword = true;
+  bool _emailError = false;
+  bool _passwordError = false;
 
 
   //email and password validation for enabling log in button
@@ -166,7 +169,7 @@ class _BlackCountryBeatsLoginScreenState
                           keyboardType: TextInputType.emailAddress,
 
 
-                          onChanged: (_) => setState(() {}),
+                          onChanged: (_) => setState(() {_emailError = false;}),
 
                           style: const TextStyle(color: Colors.white, height: 1.2),
                           cursorColor: Colors.white,
@@ -179,12 +182,14 @@ class _BlackCountryBeatsLoginScreenState
                             hintStyle: const TextStyle(color: Colors.white60, fontWeight: FontWeight.w500),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: Colors.white, width: 1),
+                              borderSide: BorderSide(
+                                  color: _emailError ? Colors.red : Colors.white,
+                                  width: 1),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                color: Colors.white,
+                              borderSide: BorderSide(
+                                color: _emailError ? Colors.red : Colors.white,
                                 width: 2,
                               ),
                             ),
@@ -198,7 +203,7 @@ class _BlackCountryBeatsLoginScreenState
                           controller: _passwordController,
                           obscureText: _obscurePassword,
 
-                          onChanged: (_) => setState(() {}),
+                          onChanged: (_) => setState(() {_passwordError = false;}),
                           keyboardType: TextInputType.text,
 
                           style: const TextStyle(color: Colors.white, height: 1.2),
@@ -225,12 +230,12 @@ class _BlackCountryBeatsLoginScreenState
                             hintStyle: const TextStyle(color: Colors.white60, fontWeight: FontWeight.w500),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: Colors.white, width: 1),
+                              borderSide: BorderSide(color: _passwordError ? Colors.red : Colors.white, width: 1),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                color: Colors.white,
+                              borderSide: BorderSide(
+                                color: _passwordError ? Colors.red : Colors.white,
                                 width: 2,
                               ),
                             ),
@@ -248,15 +253,57 @@ class _BlackCountryBeatsLoginScreenState
                               width: 200,
                               height: 45,
                               child: ElevatedButton(
-                                onPressed: isEnabled ? () {
-                                  // handle login -- WILL NEED TO CHANGE LATER
-                                  Navigator.push(
+                                onPressed: _isLoginEnabled
+                                    ? () async {
+                                  try {
+                                    await AuthService().loginUser(
+                                      email: _emailController.text.trim(),
+                                      password: _passwordController.text,
+                                    );
+
+                                    setState(() {
+                                      _emailError = false;
+                                      _passwordError = false;
+                                    });
+
+                                    Navigator.pushReplacement(
                                       context,
-                                      PageRouteBuilder(
-                                        pageBuilder: (context, animation, secondaryAnimation) => const BlackCountryBeatsHomePage(),
-                                      )
-                                  );
-                                }: null,
+                                      MaterialPageRoute(
+                                        builder: (context) => const BlackCountryBeatsHomePage(),
+                                      ),
+                                    );
+                                  } on FirebaseAuthException catch (e) {
+                                    setState(() {
+                                      if (e.code == 'user-not-found' || e.code == 'invalid-email') {
+                                        _emailError = true;
+                                        _passwordError = false;
+                                      } else if (e.code == 'wrong-password' ||
+                                          e.code == 'invalid-credential') {
+                                        _emailError = true;
+                                        _passwordError = true;
+                                      } else {
+                                        _emailError = true;
+                                        _passwordError = true;
+                                      }
+                                    });
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(e.message ?? 'Login failed')),
+                                    );
+                                  } catch (e) {
+                                    setState(() {
+                                      _emailError = true;
+                                      _passwordError = true;
+                                    });
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Unexpected error: $e')),
+                                    );
+                                  }
+                                }
+                                    : null,
+
+
                                 style: ElevatedButton.styleFrom(
                                   //enabled colouring
                                   backgroundColor: const Color(0xffffc21c).withOpacity(0.95),
