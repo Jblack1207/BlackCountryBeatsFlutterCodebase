@@ -63,7 +63,7 @@ class _BlackCountryBeatsHomePageState
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
-                padding: const EdgeInsets.only(top: 110, left: 20),
+                padding: const EdgeInsets.only(top: 115, left: 20),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -113,7 +113,7 @@ class _BlackCountryBeatsHomePageState
                             ),
                           ]
                       ),
-                      const SizedBox(height: 35),
+                      const SizedBox(height: 28),
                       Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -128,7 +128,7 @@ class _BlackCountryBeatsHomePageState
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(top: 5),
+                              padding: EdgeInsets.only(top: 4),
                               child: Icon(
                                 Icons.keyboard_arrow_right,
                                 color: Colors.white,
