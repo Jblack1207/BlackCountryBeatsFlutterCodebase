@@ -2,6 +2,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseAuth Helper.dart';
 
 
 
@@ -18,14 +19,23 @@ class BlackCountryBeatsHomePage extends StatefulWidget {
 ///class state definitions and logic control
 class _BlackCountryBeatsHomePageState
     extends State<BlackCountryBeatsHomePage> {
+  String? firstName;
 
 
+  Future<void> _loadFirstName() async {
+    final name = await AuthService().getCurrentUserFirstName();
 
-  //dispose method, prevents memory leakage
-  @override
-  void dispose() {
-    super.dispose();
+    setState(() {
+      firstName = name;
+    });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFirstName();
+  }
+
 
 
   @override
@@ -44,7 +54,7 @@ class _BlackCountryBeatsHomePageState
                 // Logo image for Login Page
                 child: SvgPicture.asset(
                   'assets/images/BCBLongLogo.svg',
-                  width: 220,
+                  width: 230,
                   fit: BoxFit.contain,
                 ),
               ),
@@ -54,35 +64,57 @@ class _BlackCountryBeatsHomePageState
               child: Padding(
                 padding: const EdgeInsets.only(top: 110, left: 20),
                 child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(
-                        Icons.person_pin_circle,
-                        color: Colors.white,
-                        size: 35,
-                  ),
-                      const SizedBox(width: 20),
-                      Text(
-                        'Welcome',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          fontStyle: FontStyle.italic,
-                        ),
+                      Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.account_circle,
+                              color: Colors.white,
+                              size: 45,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              firstName == null ? 'Welcome' : 'Welcome, $firstName',
+                              style: const TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            const SizedBox(width: 165),
+                            const Icon(
+                              Icons.notifications,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ]
                       ),
-                ]
-            ),
-                ]
-            ),
-            ),
-              )
-            ],
-          ),
+                      const SizedBox(height: 35),
+                      Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(width: 10),
+                            Text(
+                              'Latest News',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ]
+                      ),
+                    ]
+                ),
+              ),
+            )
+          ],
         ),
+      ),
     );
   }
 }
