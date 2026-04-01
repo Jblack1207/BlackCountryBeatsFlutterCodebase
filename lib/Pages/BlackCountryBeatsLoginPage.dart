@@ -3,8 +3,9 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project_cmp3023/Firebase%20Helpers/FirebaseAuth%20Helper.dart';
-import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsHomePage.dart';
 import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsSignUpPage001.dart';
+import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsShellPage.dart';
+
 
 
 class BlackCountryBeatsLoginScreen extends StatefulWidget {
@@ -269,7 +270,7 @@ class _BlackCountryBeatsLoginScreenState
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => const BlackCountryBeatsHomePage(),
+                                        builder: (context) => const BlackCountryBeatsShellPage(),
                                       ),
                                     );
                                   } on FirebaseAuthException catch (e) {
