@@ -445,6 +445,12 @@ class _BlackCountryBeatsHomePageState
                         ]
                     ),
                     //TO DO: ADD LATEST MESSAGES SECTION USING SOCKET.IO
+                    Placeholder(child: Text('TO DO: ADD LATEST MESSAGES SECTION USING SOCKET.IO', style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontStyle: FontStyle.italic,
+                    ),))
                   ]
               )
             ]
