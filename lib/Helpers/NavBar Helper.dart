@@ -12,9 +12,9 @@ class BcbBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double barHeight = 64;
-    const double highlightSize = 60;
-    const double centerButtonSize = 74;
+    const double barHeight = 60;
+    const double highlightSize = 56;
+    const double centerButtonSize = 70;
 
     return SizedBox(
       height: 90,

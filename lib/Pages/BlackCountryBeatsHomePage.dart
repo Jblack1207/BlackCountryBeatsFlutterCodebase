@@ -64,7 +64,7 @@ class _BlackCountryBeatsHomePageState
                   fit: BoxFit.contain,
                 ),
               ),
-              const SizedBox(height: 42),
+              const SizedBox(height: 18),
               Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -74,7 +74,7 @@ class _BlackCountryBeatsHomePageState
                           const Icon(
                             Icons.account_circle,
                             color: Colors.white,
-                            size: 45,
+                            size: 40,
                           ),
                           const SizedBox(width: 6),
                           firstName == null
@@ -82,22 +82,22 @@ class _BlackCountryBeatsHomePageState
                             'Welcome',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 25,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
                             ),
                           )
                               : RichText(
                             text: TextSpan(
                               style: const TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.w400,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),
                               children: [
                                 const TextSpan(
                                   text: 'Welcome, ',
-                                  style: TextStyle(color: Colors.white, fontSize: 25,
-                                      fontWeight: FontWeight.w400),
+                                  style: TextStyle(color: Colors.white, fontSize: 20,
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 TextSpan(
                                   text: firstName,
@@ -109,15 +109,15 @@ class _BlackCountryBeatsHomePageState
                               ],
                             ),
                           ),
-                          const SizedBox(width: 70),
+                          const SizedBox(width: 126),//need to fix in relation to different sized names //TODO
                           const Icon(
                             Icons.notifications,
                             color: Colors.white,
-                            size: 40,
+                            size: 34,
                           ),
                         ]
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 18),
                     Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -125,14 +125,13 @@ class _BlackCountryBeatsHomePageState
                           Text(
                             'Latest News',
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
                               color: Colors.white,
-                              fontStyle: FontStyle.italic,
                             ),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(top: 4),
+                            padding: EdgeInsets.only(top: 3),
                             child: Icon(
                               Icons.keyboard_arrow_right,
                               color: Colors.white,
@@ -142,7 +141,7 @@ class _BlackCountryBeatsHomePageState
                         ]
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 1),
 
                     FutureBuilder<List<NewsItem>>(
                       future: NewsService().getPublishedNews(),
@@ -174,7 +173,7 @@ class _BlackCountryBeatsHomePageState
                         }
 
                         return SizedBox(
-                          height: 180,
+                          height: 160,
                           child: ListView.builder(
                             itemCount: newsList.length,
                             itemBuilder: (context, index) {
@@ -183,7 +182,7 @@ class _BlackCountryBeatsHomePageState
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: Container(
-                                  padding: const EdgeInsets.only(right: 20, left: 8, top: 5, bottom: 4),
+                                  padding: const EdgeInsets.only(right: 20, left: 8, top: 5, bottom: 5),
                                   decoration: BoxDecoration(
                                     color: const Color(0xff27272A),
                                     borderRadius: BorderRadius.circular(20),
@@ -233,18 +232,18 @@ class _BlackCountryBeatsHomePageState
                                               overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(
                                                 color: Color(0xffffc21c),
-                                                fontSize: 18,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               news.newsDescription,
-                                              maxLines: 3,
+                                              maxLines: 4,
                                               overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(
                                                 color: Colors.white70,
-                                                fontSize: 14,
+                                                fontSize: 12,
                                               ),
                                             ),
                                           ],
@@ -268,25 +267,26 @@ class _BlackCountryBeatsHomePageState
                           Text(
                             'Quick Search',
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
                               color: Colors.white,
-                              fontStyle: FontStyle.italic,
                             ),
                           ),
                         ]
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 1),
                     SizedBox(
                       height: 30,
                       child: Scrollbar(
                         controller: _scrollController,
-                        thumbVisibility: false,
+                        thumbVisibility: true,
                         child: ListView(
                           controller: _scrollController,
 
                           scrollDirection: Axis.horizontal,
+
                           children: [
+
                             SizedBox( width: 105,
                               child: ElevatedButton(
                                 onPressed: () {},
@@ -305,14 +305,14 @@ class _BlackCountryBeatsHomePageState
                                 ),
                                 child: const Text('Band',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 20),
                             SizedBox( width: 105,
                               child: ElevatedButton(
                                 onPressed: () {},
@@ -331,14 +331,14 @@ class _BlackCountryBeatsHomePageState
                                 ),
                                 child: const Text('Rock',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 20),
                             SizedBox( width: 105,
                               child: ElevatedButton(
                                 onPressed: () {},
@@ -357,14 +357,14 @@ class _BlackCountryBeatsHomePageState
                                 ),
                                 child: const Text('Pop',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 20),
                             SizedBox( width: 105,
                               child: ElevatedButton(
                                 onPressed: () {},
@@ -383,14 +383,14 @@ class _BlackCountryBeatsHomePageState
                                 ),
                                 child: const Text('Solo',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 20),
                             SizedBox( width: 105,
                               child: ElevatedButton(
                                 onPressed: () {},
@@ -409,7 +409,7 @@ class _BlackCountryBeatsHomePageState
                                 ),
                                 child: const Text('Acoustic',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                   ),
@@ -420,7 +420,7 @@ class _BlackCountryBeatsHomePageState
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
                     Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -428,10 +428,9 @@ class _BlackCountryBeatsHomePageState
                           Text(
                             'Latest Messages',
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
                               color: Colors.white,
-                              fontStyle: FontStyle.italic,
                             ),
                           ),
                           Padding(

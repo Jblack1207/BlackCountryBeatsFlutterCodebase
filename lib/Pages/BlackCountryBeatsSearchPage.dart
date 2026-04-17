@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseUsersSearch Helper.dart';
-
-import 'BlackCountryBeatsUserProfilePage.dart';
+import 'package:flutter_project_cmp3023/Helpers/FiltersPopUpModel.dart';
+import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsUserProfilePage.dart';
 
 
 class BlackCountryBeatsSearchPage extends StatefulWidget {
@@ -48,7 +48,7 @@ class _BlackCountryBeatsSearchPageState
                   fit: BoxFit.contain,
                 ),
               ),
-              const SizedBox(height: 42),
+              const SizedBox(height: 18),
               Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -56,7 +56,7 @@ class _BlackCountryBeatsSearchPageState
                         children: [
                           Expanded(
                             child: Container(
-                              height: 52,
+                              height: 40,
                               decoration: BoxDecoration(
                                 color: const Color(0xFF3A3A3D),
                                 borderRadius: BorderRadius.circular(100),
@@ -89,7 +89,7 @@ class _BlackCountryBeatsSearchPageState
                                   border: InputBorder.none,
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 20,
-                                    vertical: 14,
+                                    vertical: 10,
                                   ),
                                 ),
                               ),
@@ -97,10 +97,11 @@ class _BlackCountryBeatsSearchPageState
                           ),
                           const SizedBox(width: 12),
                           SizedBox(
-                            width: 52,
-                            height: 52,
+                            width: 40,
+                            height: 40,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {  showFilterPopup(context);
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xffffc21c),
                                 foregroundColor: Colors.black,
@@ -117,27 +118,25 @@ class _BlackCountryBeatsSearchPageState
                           )
                         ]
                     ),
-                    const SizedBox(height: 20),
-                    Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(
-                          'Results',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w900,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        )
-                    ),
-                    const SizedBox(height: 20),
+
+                    const SizedBox(height: 14),
                     FutureBuilder<List<Map<String, dynamic>>>(
                       future: SearchService().searchProfiles(_searchQuery),
                       builder: (context, snapshot) {
                         if (_searchQuery.trim().length < 3) {
-                          return const Text(
-                            'To Search for a Profile please enter 3 or More Characters in the Search bar above, or use the Filters button adjacent',
-                            style: TextStyle(color: Colors.white),
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24),
+                              child: Text(
+                                'TIP: To Search for a Profile please enter 3 or more characters in the Search Bar above, or use the Filters button adjacent',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
                           );
                         }
 
@@ -149,31 +148,69 @@ class _BlackCountryBeatsSearchPageState
                         }
 
                         if (snapshot.hasError) {
-                          return const Text(
-                            'Failed to load results',
-                            style: TextStyle(color: Colors.white),
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24),
+                              child: Text(
+                                'Error, please contact the Support Desk',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
                           );
                         }
 
                         final results = snapshot.data ?? [];
 
                         if (results.isEmpty && _searchQuery.length > 2) {
-                          return const Text(
-                            'No results found',
-                            style: TextStyle(color: Colors.white),
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24),
+                              child: Text(
+                                'No Results Found, please amend your search to try again',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
                           );
                         }
 
-                        return GridView.builder(
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Align(
+                          alignment: Alignment.topCenter,
+                            child: const Text(
+                              'Results',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            )
+                          ),
+                          const SizedBox(height: 10),
+
+
+                          GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: results.length,
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 12,
+                            crossAxisSpacing: 28,
                             mainAxisSpacing: 12,
-                            childAspectRatio: 0.82,
+                            childAspectRatio: 1,
                           ),
+
                           itemBuilder: (context, index) {
                             final profile = results[index];
 
@@ -189,62 +226,64 @@ class _BlackCountryBeatsSearchPageState
                                     ),
                                   );
                                 },
-                             child: Container(
-                              padding: const EdgeInsets.only(bottom: 10, right: 2, left: 2, top: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF27272A),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Colors.white24,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-                                      child: (profile['profileImage'] ?? '').toString().isEmpty
-                                          ? Container(
-                                        width: double.infinity,
-                                        color: const Color(0xFF3A3A3D),
-                                        child: const Icon(
-                                          Icons.person,
-                                          color: Colors.white,
-                                          size: 40,
-                                        ),
-                                      )
-                                          : Image.network(
-                                        profile['profileImage'],
-                                        width: double.infinity,
-                                        fit: BoxFit.fill,
-                                        errorBuilder: (_, __, ___) => Container(
-                                          color: const Color(0xFF3A3A3D),
-                                          child: const Icon(
-                                            Icons.broken_image,
-                                            color: Colors.white,
+                                child: Container(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF27272A),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.white24,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+                                          child: (profile['profileImage'] ?? '').toString().isEmpty
+                                              ? Container(
+                                            width: double.infinity,
+                                            color: const Color(0xFF3A3A3D),
+                                            child: const Icon(
+                                              Icons.person,
+                                              color: Colors.white,
+                                              size: 40,
+                                            ),
+                                          )
+                                              : Image.network(
+                                            profile['profileImage'],
+                                            width: double.infinity,
+                                            fit: BoxFit.fill,
+                                            errorBuilder: (_, __, ___) => Container(
+                                              color: const Color(0xFF3A3A3D),
+                                              child: const Icon(
+                                                Icons.broken_image,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        profile['profileName'] ?? '',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    profile['profileName'] ?? '',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                             )
+                                )
                             );
                           },
+                        )
+                        ]
                         );
                       },
                     )

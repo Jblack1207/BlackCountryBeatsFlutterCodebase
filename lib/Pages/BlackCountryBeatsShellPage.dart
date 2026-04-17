@@ -38,7 +38,7 @@ class _BlackCountryBeatsShellPageState
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                  padding: const EdgeInsets.only(top: 34, right: 10, left: 10, bottom: 5),
+                  padding: const EdgeInsets.only(top: 34, right: 25, left: 25, bottom: 6),
                 child: BcbBottomNav(
                   selectedIndex: _selectedIndex,
                   onTap: (index) {
