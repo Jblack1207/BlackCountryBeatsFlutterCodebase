@@ -49,7 +49,7 @@ class _BlackCountryBeatsHomePageState
   Widget build(BuildContext context) {
     return SingleChildScrollView(
         padding: const EdgeInsets.only(
-          top: 18,
+          top: 80,
           left: 18,
           right: 18,
           bottom: 130,
@@ -69,17 +69,28 @@ class _BlackCountryBeatsHomePageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.account_circle,
-                            color: Colors.white,
-                            size: 40,
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            await AuthService().logoutUser(context);
+                          },
+                          borderRadius: BorderRadius.circular(30),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.account_circle,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                           ),
-                          const SizedBox(width: 6),
-                          firstName == null
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: firstName == null
                               ? const Text(
                             'Welcome',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -87,6 +98,8 @@ class _BlackCountryBeatsHomePageState
                             ),
                           )
                               : RichText(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             text: TextSpan(
                               style: const TextStyle(
                                 fontSize: 20,
@@ -96,26 +109,30 @@ class _BlackCountryBeatsHomePageState
                               children: [
                                 const TextSpan(
                                   text: 'Welcome, ',
-                                  style: TextStyle(color: Colors.white, fontSize: 20,
-                                      fontWeight: FontWeight.w500),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                                 TextSpan(
                                   text: firstName,
                                   style: const TextStyle(
-                                      color: Color(0xffffc21c),
-                                      fontWeight: FontWeight.w400
+                                    color: Color(0xffffc21c),
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 126),//need to fix in relation to different sized names //TODO
-                          const Icon(
-                            Icons.notifications,
-                            color: Colors.white,
-                            size: 34,
-                          ),
-                        ]
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.notifications,
+                          color: Colors.white,
+                          size: 34,
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 18),
                     Row(
@@ -175,6 +192,7 @@ class _BlackCountryBeatsHomePageState
                         return SizedBox(
                           height: 160,
                           child: ListView.builder(
+                            padding: EdgeInsets.zero,
                             itemCount: newsList.length,
                             itemBuilder: (context, index) {
                               final news = newsList[index];
@@ -182,7 +200,12 @@ class _BlackCountryBeatsHomePageState
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: Container(
-                                  padding: const EdgeInsets.only(right: 20, left: 8, top: 5, bottom: 5),
+                                  padding: const EdgeInsets.only(
+                                    right: 20,
+                                    left: 8,
+                                    top: 5,
+                                    bottom: 5,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: const Color(0xff27272A),
                                     borderRadius: BorderRadius.circular(20),
@@ -256,6 +279,7 @@ class _BlackCountryBeatsHomePageState
                             },
                           ),
                         );
+;
                       },
                     ),
                     const SizedBox(height: 18),
@@ -279,10 +303,8 @@ class _BlackCountryBeatsHomePageState
                       height: 30,
                       child: Scrollbar(
                         controller: _scrollController,
-                        thumbVisibility: true,
+                        thumbVisibility: false,
                         child: ListView(
-                          controller: _scrollController,
-
                           scrollDirection: Axis.horizontal,
 
                           children: [

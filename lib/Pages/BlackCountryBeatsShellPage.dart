@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsHomePage.dart';
+import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsMessageHomePage.dart';
 
 import '../Helpers/NavBar Helper.dart';
 import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsSearchPage.dart';
@@ -20,7 +21,7 @@ class _BlackCountryBeatsShellPageState
     BlackCountryBeatsHomePage(),
     BlackCountryBeatsSearchPage(),
     SizedBox(),
-    Placeholder(),
+    BlackCountryBeatsMessageHomePage(),
     Placeholder(),
   ];
 
@@ -28,9 +29,7 @@ class _BlackCountryBeatsShellPageState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff1F1F1F),
-      body: SafeArea(
-        bottom: false,
-        child: Stack(
+      body: Stack(
           children: [
             Positioned.fill(
               child: _pages[_selectedIndex],
@@ -57,7 +56,6 @@ class _BlackCountryBeatsShellPageState
             )
           ],
         ),
-      ),
-    );
+      );
   }
 }

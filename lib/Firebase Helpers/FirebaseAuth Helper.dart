@@ -1,5 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+import '../Pages/BlackCountryBeatsLoginPage.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -83,10 +87,63 @@ class AuthService {
     required String email,
     required String password,
   }) async {
+    await setUserOnlineStatus(true);
     return await _auth.signInWithEmailAndPassword(
       email: email.trim(),
       password: password,
     );
+
   }
+  Future<void> logoutUser(BuildContext context) async {
+    await setUserOnlineStatus(false);
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+        const BlackCountryBeatsLoginScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final offsetAnimation = Tween<Offset>(
+            begin: const Offset(-1.0, 0.0),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeInOut,
+            ),
+          );
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+          (route) => false,
+    );
+  }
+  User? getCurrentUser() {
+    return _auth.currentUser;
+  }
+
+  Future<void> setUserOnlineStatus(bool isOnline) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection('publicProfiles')
+        .where('userId', isEqualTo: user.uid)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      await snapshot.docs.first.reference.update({
+        'isOnline': isOnline,
+      });
+    }
+  }
+
 }
 

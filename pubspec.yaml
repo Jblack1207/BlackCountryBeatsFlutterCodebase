@@ -35,6 +35,7 @@ dependencies:
   firebase_auth: ^5.5.2
   cloud_firestore: ^5.6.6
   flutter_svg: ^2.0.10+1
+  socket_io_client: ^3.1.4
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -75,6 +76,9 @@ flutter:
     - assets/images/BCBLongLogo.svg
     - assets/images/BCBLongLogowshad.svg
     - assets/images/NavBarImg.png
+    - assets/images/jazz.jpg
+    - assets/images/rock.jpg
+    - assets/images/pop.jpg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
