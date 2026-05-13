@@ -4,10 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../Pages/BlackCountryBeatsLoginPage.dart';
+import '../Helpers/PresenceHelper.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final PresenceHelper _presenceService = PresenceHelper();
+
 
 
   // Future<bool> isUsernameTaken(String username) async {
@@ -95,7 +99,7 @@ class AuthService {
 
   }
   Future<void> logoutUser(BuildContext context) async {
-    await setUserOnlineStatus(false);
+    await _presenceService.setOnline(false);
     await FirebaseAuth.instance.signOut();
 
     Navigator.pushAndRemoveUntil(

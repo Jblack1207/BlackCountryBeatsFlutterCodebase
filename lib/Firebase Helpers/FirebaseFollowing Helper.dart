@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -5,56 +6,91 @@ class FollowingService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<List<Map<String, dynamic>>> getFollowingProfiles() async {
+  Stream<List<Map<String, dynamic>>> getFollowingProfilesStream() {
     final user = _auth.currentUser;
     if (user == null) {
-      return [];
+      return Stream.value([]);
     }
 
     final currentUserId = user.uid;
-    final List<Map<String, dynamic>> profiles = [];
+    final controller = StreamController<List<Map<String, dynamic>>>.broadcast();
 
-    final currentUserSnapshot = await _firestore
-        .collection('publicProfiles')
-        .where('userId', isEqualTo: currentUserId)
-        .limit(1)
-        .get();
+    StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? followingSub;
+    StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? profilesSub;
 
-    if (currentUserSnapshot.docs.isNotEmpty) {
-      final currentUserDoc = currentUserSnapshot.docs.first;
-      profiles.add({
-        'id': currentUserDoc.id,
-        ...currentUserDoc.data(),
+    Future<void> emitProfiles() async {
+      await profilesSub?.cancel();
+
+      final currentUserSnapshot = await _firestore
+          .collection('publicProfiles')
+          .where('userId', isEqualTo: currentUserId)
+          .limit(1)
+          .get();
+
+      final currentUserDoc =
+      currentUserSnapshot.docs.isNotEmpty ? currentUserSnapshot.docs.first : null;
+
+      final followingSnapshot = await _firestore
+          .collection('followingLinks')
+          .where('userId', isEqualTo: currentUserId)
+          .get();
+
+      final followedIds = followingSnapshot.docs
+          .map((doc) => doc.data()['followingUserId']?.toString())
+          .whereType<String>()
+          .toSet()
+          .toList();
+
+      final idsToWatch = <String>[
+        if (currentUserDoc != null) currentUserDoc.id,
+        ...followedIds.where((id) => currentUserDoc == null || id != currentUserDoc.id),
+      ];
+
+      if (idsToWatch.isEmpty) {
+        controller.add([]);
+        return;
+      }
+
+      profilesSub = _firestore
+          .collection('publicProfiles')
+          .where(FieldPath.documentId, whereIn: idsToWatch)
+          .snapshots()
+          .listen((profilesSnapshot) {
+        final docsById = {
+          for (final doc in profilesSnapshot.docs) doc.id: doc.data(),
+        };
+
+        final orderedProfiles = <Map<String, dynamic>>[];
+
+        for (final id in idsToWatch) {
+          final data = docsById[id];
+          if (data != null) {
+            orderedProfiles.add({
+              'id': id,
+              ...data,
+            });
+          }
+        }
+
+        controller.add(orderedProfiles);
       });
     }
 
-    final followingSnapshot = await _firestore
+    followingSub = _firestore
         .collection('followingLinks')
         .where('userId', isEqualTo: currentUserId)
-        .get();
+        .snapshots()
+        .listen((_) async {
+      await emitProfiles();
+    });
 
-    final followedUserIds = followingSnapshot.docs
-        .map((doc) => doc.data()['followingUserId']?.toString())
-        .whereType<String>()
-        .toSet()
-        .toList();
+    emitProfiles();
 
-    for (final followedUserId in followedUserIds) {
-      if (profiles.any((profile) => profile['id'] == followedUserId)) {
-        continue;
-      }
+    controller.onCancel = () async {
+      await followingSub?.cancel();
+      await profilesSub?.cancel();
+    };
 
-      final followedDoc =
-      await _firestore.collection('publicProfiles').doc(followedUserId).get();
-
-      if (followedDoc.exists && followedDoc.data() != null) {
-        profiles.add({
-          'id': followedDoc.id,
-          ...followedDoc.data()!,
-        });
-      }
-    }
-
-    return profiles;
+    return controller.stream;
   }
 }
