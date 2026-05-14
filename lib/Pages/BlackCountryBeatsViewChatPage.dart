@@ -41,6 +41,11 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       _userId = user.uid;
     });
 
+    await _chatService.markChatAsRead(
+      chatId: widget.chatId,
+      currentUserId: _userId!,
+    );
+
     _socketService.connect(
       serverUrl: 'http://192.168.0.113:3000',
       userId: _userId!,

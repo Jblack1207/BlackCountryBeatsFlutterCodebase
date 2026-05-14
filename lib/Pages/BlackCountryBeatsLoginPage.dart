@@ -270,7 +270,7 @@ class _BlackCountryBeatsLoginScreenState
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => const BlackCountryBeatsShellPage(),
+                                        builder: (context) => const BlackCountryBeatsShellPage(initialIndex: 0),
                                       ),
                                     );
                                   } on FirebaseAuthException catch (e) {
@@ -374,8 +374,8 @@ class _BlackCountryBeatsLoginScreenState
                               assetPath: 'assets/images/image8.png',
                               backgroundColor: const Color(0xcc27272A),
                               borderColor: const Color (0xFF394046),
-                              onPressed: () {
-                                // Google sign in
+                              onPressed: () async {
+                                await AuthService().signInWithGoogle();
                               },
                             ),
                             const SizedBox(width: 24),

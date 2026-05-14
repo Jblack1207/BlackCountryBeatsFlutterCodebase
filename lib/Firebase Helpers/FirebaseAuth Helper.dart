@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../Pages/BlackCountryBeatsLoginPage.dart';
 import '../Helpers/PresenceHelper.dart';
@@ -9,6 +10,7 @@ import '../Helpers/PresenceHelper.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   final PresenceHelper _presenceService = PresenceHelper();
 
@@ -87,17 +89,24 @@ class AuthService {
     return firstName;
   }
 
-  Future<UserCredential> loginUser({
+  Future<UserCredential?> loginUser({
     required String email,
     required String password,
   }) async {
-    await setUserOnlineStatus(true);
-    return await _auth.signInWithEmailAndPassword(
-      email: email.trim(),
-      password: password,
-    );
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-  }
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      print('LOGIN CODE: ${e.code}');
+      print('LOGIN MESSAGE: ${e.message}');
+      rethrow;
+    }
+
+}
   Future<void> logoutUser(BuildContext context) async {
     await _presenceService.setOnline(false);
     await FirebaseAuth.instance.signOut();
@@ -147,6 +156,20 @@ class AuthService {
         'isOnline': isOnline,
       });
     }
+  }
+
+  Future<UserCredential?> signInWithGoogle() async {
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) return null;
+
+    final googleAuth = await googleUser.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    return await _auth.signInWithCredential(credential);
   }
 
 }

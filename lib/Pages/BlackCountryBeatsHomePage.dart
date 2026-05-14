@@ -55,12 +55,16 @@ class _BlackCountryBeatsHomePageState
 
       final profileData = profileSnapshot.docs.first.data();
 
+      final unreadCounts =
+      Map<String, dynamic>.from(chatData['unreadCounts'] ?? {});
+
       results.add({
         'chatId': chatDoc.id,
         'otherUserId': otherUserId,
         'profileName': profileData['profileName'] ?? 'Unknown',
         'profileImage': profileData['profileImage'] ?? '',
         'lastMessage': chatData['lastMessage'] ?? '',
+        'unreadCount': ((unreadCounts[currentUserId] ?? 0) as num).toInt(),
       });
     }
 
@@ -574,96 +578,135 @@ class _BlackCountryBeatsHomePageState
                         final latestMessages = messages.take(3).toList();
 
                         return SizedBox(
-                            height: 260,
+                            height: 160,
                             child: ListView.separated(
                               padding: EdgeInsets.zero,
                               itemCount: latestMessages.length,
                               separatorBuilder: (_, __) =>
                           const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final item = latestMessages[index];
-                            final otherUserId = (item['otherUserId'] ?? '').toString();
+                                itemBuilder: (context, index) {
+                                  final item = latestMessages[index];
+                                  final otherUserId = (item['otherUserId'] ?? '').toString();
+                                  final unreadCount = ((item['unreadCount'] ?? 0) as num).toInt();
+                                  final hasUnread = unreadCount > 0;
 
-                            return InkWell(
-                              borderRadius: BorderRadius.circular(18),
-                              onTap: otherUserId.isEmpty
-                                  ? null
-                                  : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ChatThreadPage(
-                                      chatId:
-                                      (item['chatId'] ?? '').toString(),
-                                      otherUserId: otherUserId,
-                                      otherUserName:
-                                      (item['profileName'] ?? 'Unknown')
-                                          .toString(),
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF27272A),
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: Colors.white24),
-                                ),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 28,
-                                      backgroundColor:
-                                      const Color(0xFF3A3A3D),
-                                      backgroundImage: (item['profileImage'] ?? '')
-                                          .toString()
-                                          .isNotEmpty
-                                          ? NetworkImage(item['profileImage'])
-                                          : null,
-                                      child: (item['profileImage'] ?? '')
-                                          .toString()
-                                          .isEmpty
-                                          ? const Icon(
-                                        Icons.person,
-                                        color: Colors.white,
-                                      )
-                                          : null,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['profileName'] ?? 'Unknown',
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: Color(0xFFFFD000),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700,
-                                            ),
+                                  return InkWell(
+                                    borderRadius: BorderRadius.circular(18),
+                                    onTap: otherUserId.isEmpty
+                                        ? null
+                                        : () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => ChatThreadPage(
+                                            chatId: (item['chatId'] ?? '').toString(),
+                                            otherUserId: otherUserId,
+                                            otherUserName:
+                                            (item['profileName'] ?? 'Unknown').toString(),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            item['lastMessage'] ?? '',
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 14,
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: hasUnread
+                                            ? const Color(0xFF333337)
+                                            : const Color(0xFF27272A),
+                                        borderRadius: BorderRadius.circular(18),
+                                        border: Border.all(
+                                          color: hasUnread ? Colors.white24 : Colors.white24,
+                                          width: hasUnread ? 1.4 : 1,
+                                        ),
+                                        boxShadow: hasUnread
+                                            ? const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 8,
+                                            offset: Offset(0, 4),
+                                          ),
+                                        ]
+                                            : null,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 28,
+                                                backgroundColor: const Color(0xFF3A3A3D),
+                                                backgroundImage: (item['profileImage'] ?? '')
+                                                    .toString()
+                                                    .isNotEmpty
+                                                    ? NetworkImage(item['profileImage'])
+                                                    : null,
+                                                child: (item['profileImage'] ?? '').toString().isEmpty
+                                                    ? const Icon(
+                                                  Icons.person,
+                                                  color: Colors.white,
+                                                )
+                                                    : null,
+                                              ),
+                                              if (hasUnread)
+                                                Positioned(
+                                                  right: -270,
+                                                  top: 17,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 7,
+                                                      vertical: 3,
+                                                    ),
+                                                    decoration: const BoxDecoration(
+                                                      color: Color(0xFFFF0505),
+                                                      borderRadius: BorderRadius.all(Radius.circular(999)),
+                                                    ),
+                                                    child: Text(
+                                                      '$unreadCount',
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 11,
+                                                        fontWeight: FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  item['profileName'] ?? 'Unknown',
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    color: const Color(0xFFFFD000),
+                                                    fontSize: 16,
+                                                    fontWeight: hasUnread ? FontWeight.w800 : FontWeight.w700,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  item['lastMessage'] ?? '',
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    color: hasUnread ? Colors.white : Colors.white70,
+                                                    fontSize: 14,
+                                                    fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                                  );
+                                },
                             )
                         );
                       },

@@ -66,76 +66,137 @@ class _BlackCountryBeatsPublicProfileTypeStepState
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 12),
-          const Text(
-            'Choose your Account Type',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'This selection should be based on what type of User you are and what Accounts you want to attract.',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 24),
-          _buildTypeCard(
-            value: 1,
-            title: 'Band',
-            subtitle: 'For groups, bands, and multi-member acts.',
-          ),
-          const SizedBox(height: 14),
-          _buildTypeCard(
-            value: 2,
-            title: 'Solo',
-            subtitle: 'For solo artists and independent performers.',
-          ),
-          const SizedBox(height: 14),
-          _buildTypeCard(
-            value: 3,
-            title: 'Venue',
-            subtitle: 'For venues, spaces, and event locations.',
-          ),
+    const double topSectionHeight = 120;
 
-          const SizedBox(height: 40),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _selectedProfileType == null
-                  ? null
-                  : () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BlackCountryBeatsCreatePublicProfilePage(
-                      profileType: _selectedProfileType!,
+    return Scaffold(
+      backgroundColor: const Color(0xFF1F1F1F),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: topSectionHeight,
+              padding: EdgeInsets.fromLTRB(
+                16,
+                MediaQuery.of(context).padding.top + 8,
+                16,
+                12,
+              ),
+              decoration: const BoxDecoration(
+                color: Color(0xFF27272A),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Create Your Profile',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xffffc21c).withOpacity(0.95),
-                foregroundColor: Colors.black,
-                disabledBackgroundColor: const Color(0xFF3A3A3D),
-                disabledForegroundColor: Colors.white54,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                ],
               ),
-              child: const Text(
-                'Next',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
+            ),
+          ),
+          Positioned.fill(
+            top: topSectionHeight - 8,
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Choose your Account Type',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'This selection should be based on what type of User you are and what Accounts you want to attract.',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildTypeCard(
+                    value: 1,
+                    title: 'Band',
+                    subtitle: 'For groups, bands, and multi-member acts.',
+                  ),
+                  const SizedBox(height: 14),
+                  _buildTypeCard(
+                    value: 2,
+                    title: 'Solo',
+                    subtitle: 'For solo artists and independent performers.',
+                  ),
+                  const SizedBox(height: 14),
+                  _buildTypeCard(
+                    value: 3,
+                    title: 'Venue',
+                    subtitle: 'For venues, spaces, and event locations.',
+                  ),
+                  const SizedBox(height: 40),
+                  Align(
+                    child: SizedBox(
+                      width: 200,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _selectedProfileType == null
+                            ? null
+                            : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  BlackCountryBeatsCreatePublicProfilePage(
+                                    profileType: _selectedProfileType!,
+                                  ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                          const Color(0xffffc21c).withOpacity(0.95),
+                          foregroundColor: Colors.black,
+                          disabledBackgroundColor: const Color(0xFF3A3A3D),
+                          disabledForegroundColor: Colors.white54,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text(
+                          'Next',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

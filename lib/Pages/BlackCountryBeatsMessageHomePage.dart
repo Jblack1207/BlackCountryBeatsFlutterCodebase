@@ -315,6 +315,8 @@ class _BlackCountryBeatsMessageHomePageState
       try {
         final chatData = chatDoc.data();
         final members = List<String>.from(chatData['members'] ?? []);
+        final unreadCounts =
+        Map<String, dynamic>.from(chatData['unreadCounts'] ?? {});
 
         final otherUserId = members.firstWhere(
               (id) => id != _userId,
@@ -340,6 +342,7 @@ class _BlackCountryBeatsMessageHomePageState
           'profileImage': profileData['profileImage'] ?? '',
           'lastMessage': chatData['lastMessage'] ?? '',
           'time': '',
+          'unreadCount': ((unreadCounts[_userId] ?? 0) as num).toInt(),
         });
       } catch (e) {
         print('Error building chat item for ${chatDoc.id}: $e');
@@ -420,7 +423,7 @@ class _BlackCountryBeatsMessageHomePageState
                         if (followedProfiles.isEmpty) {
                           return const Center(
                             child: Text(
-                              'No following yet',
+                              'TIP: When you follow someone, their account will appear here',
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 12,
@@ -629,7 +632,10 @@ class _BlackCountryBeatsMessageHomePageState
                       );
                     }
 
+
                     final item = messages[index - 1];
+                    final unreadCount = ((item['unreadCount'] ?? 0) as num).toInt();
+                    final hasUnread = unreadCount > 0;
 
                     return InkWell(
                       borderRadius: BorderRadius.circular(18),
@@ -646,28 +652,70 @@ class _BlackCountryBeatsMessageHomePageState
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF27272A),
+                          color: hasUnread
+                              ? const Color(0xFF333337)
+                              : const Color(0xFF27272A),
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Colors.white24),
+                          border: Border.all(
+                            color: hasUnread ? Colors.white24 : Colors.white24,
+                            width: hasUnread ? 1.4 : 1,
+                          ),
+                          boxShadow: hasUnread
+                              ? const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ]
+                              : null,
                         ),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              radius: 28,
-                              backgroundColor: const Color(0xFF3A3A3D),
-                              backgroundImage: (item['profileImage'] ?? '')
-                                  .toString()
-                                  .isNotEmpty
-                                  ? NetworkImage(item['profileImage'])
-                                  : null,
-                              child: (item['profileImage'] ?? '').toString().isEmpty
-                                  ? const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                              )
-                                  : null,
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                CircleAvatar(
+                                  radius: 28,
+                                  backgroundColor: const Color(0xFF3A3A3D),
+                                  backgroundImage: (item['profileImage'] ?? '')
+                                      .toString()
+                                      .isNotEmpty
+                                      ? NetworkImage(item['profileImage'])
+                                      : null,
+                                  child: (item['profileImage'] ?? '').toString().isEmpty
+                                      ? const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                  )
+                                      : null,
+                                ),
+                                if (hasUnread)
+                                  Positioned(
+                                    right: -270,
+                                    top: 17,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 7,
+                                        vertical: 3,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFFF0505),
+                                        borderRadius: BorderRadius.all(Radius.circular(999)),
+                                      ),
+                                      child: Text(
+                                        '$unreadCount',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -678,10 +726,10 @@ class _BlackCountryBeatsMessageHomePageState
                                     item['profileName'] ?? 'Unknown',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Color(0xFFFFD000),
+                                    style: TextStyle(
+                                      color: const Color(0xFFFFD000),
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: hasUnread ? FontWeight.w800 : FontWeight.w700,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
@@ -689,9 +737,10 @@ class _BlackCountryBeatsMessageHomePageState
                                     item['lastMessage'] ?? '',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
+                                    style: TextStyle(
+                                      color: hasUnread ? Colors.white : Colors.white70,
                                       fontSize: 14,
+                                      fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w400,
                                     ),
                                   ),
                                 ],
@@ -700,7 +749,7 @@ class _BlackCountryBeatsMessageHomePageState
                           ],
                         ),
                       ),
-                    );
+                    );;
                   },
                 );
               },

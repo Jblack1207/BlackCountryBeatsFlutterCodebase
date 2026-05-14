@@ -27,6 +27,10 @@ class ChatService {
       'lastMessage': '',
       'lastMessageAt': FieldValue.serverTimestamp(),
       'lastSenderId': '',
+      'unreadCounts': {
+        currentUserId: 0,
+        otherUserId: 0,
+      },
     });
 
     return chatDoc.id;
@@ -37,16 +41,42 @@ class ChatService {
     required String senderId,
     required String text,
   }) async {
-    await _firestore.collection('chats').doc(chatId).collection('messages').add({
+    final chatRef = _firestore.collection('chats').doc(chatId);
+    final chatSnapshot = await chatRef.get();
+
+    if (!chatSnapshot.exists) return;
+
+    final chatData = chatSnapshot.data()!;
+    final members = List<String>.from(chatData['members'] ?? []);
+    final unreadCounts = Map<String, dynamic>.from(chatData['unreadCounts'] ?? {});
+
+    final recipientId = members.firstWhere(
+          (id) => id != senderId,
+      orElse: () => '',
+    );
+
+    await chatRef.collection('messages').add({
       'senderId': senderId,
       'text': text,
       'sentAt': FieldValue.serverTimestamp(),
+      'readBy': [senderId],
     });
 
-    await _firestore.collection('chats').doc(chatId).update({
+    final updatedUnreadCounts = <String, dynamic>{
+      ...unreadCounts,
+      senderId: 0,
+    };
+
+    if (recipientId.isNotEmpty) {
+      updatedUnreadCounts[recipientId] =
+          ((unreadCounts[recipientId] ?? 0) as num).toInt() + 1;
+    }
+
+    await chatRef.update({
       'lastMessage': text,
       'lastMessageAt': FieldValue.serverTimestamp(),
       'lastSenderId': senderId,
+      'unreadCounts': updatedUnreadCounts,
     });
   }
 
@@ -65,5 +95,32 @@ class ChatService {
         .where('members', arrayContains: userId)
         .orderBy('lastMessageAt', descending: true)
         .snapshots();
+  }
+
+  Future<void> markChatAsRead({
+    required String chatId,
+    required String currentUserId,
+  }) async {
+    final chatRef = _firestore.collection('chats').doc(chatId);
+
+    await chatRef.update({
+      'unreadCounts.$currentUserId': 0,
+    });
+
+    final unreadMessages = await chatRef
+        .collection('messages')
+        .where('senderId', isNotEqualTo: currentUserId)
+        .get();
+
+    for (final doc in unreadMessages.docs) {
+      final data = doc.data();
+      final readBy = List<String>.from(data['readBy'] ?? []);
+
+      if (!readBy.contains(currentUserId)) {
+        await doc.reference.update({
+          'readBy': FieldValue.arrayUnion([currentUserId]),
+        });
+      }
+    }
   }
 }

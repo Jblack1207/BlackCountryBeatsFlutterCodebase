@@ -7,7 +7,7 @@ import '../Helpers/NavBar Helper.dart';
 import 'BlackCountryBeatsPublicProfilePage.dart';
 
 class BlackCountryBeatsShellPage extends StatefulWidget {
-  const BlackCountryBeatsShellPage({super.key});
+  const BlackCountryBeatsShellPage({super.key, required int initialIndex});
 
   @override
   State<BlackCountryBeatsShellPage> createState() =>
