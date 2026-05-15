@@ -1,15 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseAuth Helper.dart';
-import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseChat Helper.dart';
-import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseNews Helper.dart';
-import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsViewChatPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; //import for cloud firestore
+import 'package:flutter/material.dart'; //import material flutter components
+import 'package:flutter_svg/flutter_svg.dart'; //import flutter svg manager
+import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseAuth Helper.dart'; //import Firebase Auth Functions
+import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseChat Helper.dart'; //import Firebase Chat Helper for Latest Messages Section
+import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseNews Helper.dart'; //import Firebase News Helper for Latest News Section
+import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsViewChatPage.dart'; //for navigation when clicking on Latest Messages section
+
+import 'BlackCountryBeatsProfileOptionsPage.dart';
 
 class BlackCountryBeatsHomePage extends StatefulWidget {
   const BlackCountryBeatsHomePage({super.key});
 
-  @override
+  @override //creates Home Page State
   State<BlackCountryBeatsHomePage> createState() =>
       _BlackCountryBeatsHomePageState();
 }
@@ -17,17 +19,18 @@ class BlackCountryBeatsHomePage extends StatefulWidget {
 class _BlackCountryBeatsHomePageState
     extends State<BlackCountryBeatsHomePage> {
   String? firstName;
-  final ScrollController _scrollController = ScrollController();
-  final ChatService _chatService = ChatService();
+  final ScrollController _scrollController = ScrollController(); //scroll controller for 3 main elements of the page
+  final ChatService _chatService = ChatService(); //chat service from Chat Helper that allows for connection to nodeJs Server and Firebase Storage
 
   Future<void> _loadFirstName() async {
-    final name = await AuthService().getCurrentUserFirstName();
+    final name = await AuthService().getCurrentUserFirstName(); //retrieves currently authenticated users first name
 
     setState(() {
-      firstName = name;
+      firstName = name; //sets first name
     });
   }
 
+  //builds the LatestMessages component
   Future<List<Map<String, dynamic>>> _buildLatestMessages(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> chatDocs,
       String currentUserId,
@@ -45,16 +48,19 @@ class _BlackCountryBeatsHomePageState
 
       if (otherUserId.isEmpty) continue;
 
+      //searches firebase collection publicProfiles where userId field matches otherUserId (any user id that does not match currently authenticated user)
       final profileSnapshot = await FirebaseFirestore.instance
           .collection('publicProfiles')
           .where('userId', isEqualTo: otherUserId)
           .limit(1)
           .get();
 
+      //empty field protection
       if (profileSnapshot.docs.isEmpty) continue;
 
       final profileData = profileSnapshot.docs.first.data();
 
+      //sets unreadCounts from Firebase Collection Document for user
       final unreadCounts =
       Map<String, dynamic>.from(chatData['unreadCounts'] ?? {});
 
@@ -71,6 +77,7 @@ class _BlackCountryBeatsHomePageState
     return results;
   }
 
+  //initialise required states
   @override
   void initState() {
     super.initState();
@@ -85,6 +92,7 @@ class _BlackCountryBeatsHomePageState
 
   @override
   Widget build(BuildContext context) {
+    //sets User as currently Logged In user
     final user = AuthService().getCurrentUser();
 
     return SingleChildScrollView(
@@ -98,6 +106,7 @@ class _BlackCountryBeatsHomePageState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Center(
+            //Top of the Page Logo
             child: SvgPicture.asset(
               'assets/images/BCBLongLogo.svg',
               width: 240,
@@ -111,8 +120,18 @@ class _BlackCountryBeatsHomePageState
               Row(
                 children: [
                   InkWell(
+                    //Navigation logic for sending user to the ProfileOptions page from the acccount_circle logo
                     onTap: () async {
-                      await AuthService().logoutUser(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlackCountryBeatsProfileOptionsPage(
+                            onLogOut: (context) async {
+                              await AuthService().logoutUser(context);
+                            },
+                          ),
+                        ),
+                      );
                     },
                     borderRadius: BorderRadius.circular(30),
                     child: const Padding(
@@ -125,6 +144,7 @@ class _BlackCountryBeatsHomePageState
                     ),
                   ),
                   const SizedBox(width: 6),
+                  //if statement for whether firstName is present or not and whether to display Welcome or Welcome {{firstName}}
                   Expanded(
                     child: firstName == null
                         ? const Text(
@@ -175,6 +195,8 @@ class _BlackCountryBeatsHomePageState
                 ],
               ),
               const SizedBox(height: 18),
+
+              //LATEST NEWS SECTION
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -198,6 +220,8 @@ class _BlackCountryBeatsHomePageState
                 ],
               ),
               const SizedBox(height: 8),
+
+              //fetches and displays News Documents from Firebase
               FutureBuilder<List<NewsItem>>(
                 future: NewsService().getPublishedNews(),
                 builder: (context, snapshot) {
@@ -207,6 +231,7 @@ class _BlackCountryBeatsHomePageState
                     );
                   }
 
+                  //error protection
                   if (snapshot.hasError) {
                     return const Center(
                       child: Text(
@@ -218,6 +243,7 @@ class _BlackCountryBeatsHomePageState
 
                   final newsList = snapshot.data ?? [];
 
+                  //empty news protection
                   if (newsList.isEmpty) {
                     return const Center(
                       child: Text(
@@ -235,6 +261,7 @@ class _BlackCountryBeatsHomePageState
                       itemBuilder: (context, index) {
                         final news = newsList[index];
 
+                        //NEWS BOX
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Container(
@@ -259,6 +286,8 @@ class _BlackCountryBeatsHomePageState
                                 ),
                               ],
                             ),
+
+                            //NEWS IMAGE
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -283,6 +312,8 @@ class _BlackCountryBeatsHomePageState
                                   ),
                                 ),
                                 const SizedBox(width: 8),
+
+                                //NEWS TITLE
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -299,6 +330,8 @@ class _BlackCountryBeatsHomePageState
                                         ),
                                       ),
                                       const SizedBox(height: 4),
+
+                                      //NEWS DESCRIPTION
                                       Text(
                                         news.newsDescription,
                                         maxLines: 4,
@@ -321,6 +354,8 @@ class _BlackCountryBeatsHomePageState
                 },
               ),
               const SizedBox(height: 18),
+
+              //QUICK SEARCH SCROLLER
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -336,6 +371,8 @@ class _BlackCountryBeatsHomePageState
                 ],
               ),
               const SizedBox(height: 8),
+
+              //QUICK SEARCH SCROLLBAR LOGIC
               SizedBox(
                 height: 30,
                 child: Scrollbar(
@@ -345,6 +382,7 @@ class _BlackCountryBeatsHomePageState
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
                     children: [
+                      //Band quick search box
                       SizedBox(
                         width: 105,
                         child: ElevatedButton(
@@ -372,6 +410,8 @@ class _BlackCountryBeatsHomePageState
                         ),
                       ),
                       const SizedBox(width: 20),
+                      //Rock quick search box
+
                       SizedBox(
                         width: 105,
                         child: ElevatedButton(
@@ -399,6 +439,9 @@ class _BlackCountryBeatsHomePageState
                         ),
                       ),
                       const SizedBox(width: 20),
+
+                      //Pop quick search box
+
                       SizedBox(
                         width: 105,
                         child: ElevatedButton(
@@ -426,6 +469,9 @@ class _BlackCountryBeatsHomePageState
                         ),
                       ),
                       const SizedBox(width: 20),
+
+                      //Solo quick search box
+
                       SizedBox(
                         width: 105,
                         child: ElevatedButton(
@@ -453,6 +499,8 @@ class _BlackCountryBeatsHomePageState
                         ),
                       ),
                       const SizedBox(width: 20),
+
+                      //Acoustic quick search box
                       SizedBox(
                         width: 105,
                         child: ElevatedButton(
@@ -484,6 +532,8 @@ class _BlackCountryBeatsHomePageState
                 ),
               ),
               const SizedBox(height: 18),
+
+              //LATEST MESSAGES
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -507,6 +557,7 @@ class _BlackCountryBeatsHomePageState
                 ],
               ),
               const SizedBox(height: 8),
+              //error protection against nullable users
               if (user == null)
                 const Center(
                   child: Text(
@@ -515,6 +566,7 @@ class _BlackCountryBeatsHomePageState
                   ),
                 )
               else
+                //Stream builder to connect chat service to nodeJS Server and Firebase
                 StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   stream: _chatService.messageHomeStream(user.uid),
                   builder: (context, snapshot) {
@@ -545,6 +597,7 @@ class _BlackCountryBeatsHomePageState
                       );
                     }
 
+                    //if messages are retrieved, message section is built
                     return FutureBuilder<List<Map<String, dynamic>>>(
                       future: _buildLatestMessages(chatDocs, user.uid),
                       builder: (context, messageSnapshot) {
@@ -566,6 +619,7 @@ class _BlackCountryBeatsHomePageState
 
                         final messages = messageSnapshot.data!;
 
+                        //empty message protection
                         if (messages.isEmpty) {
                           return const Center(
                             child: Text(
@@ -575,6 +629,7 @@ class _BlackCountryBeatsHomePageState
                           );
                         }
 
+                        //only 3 latest messages shown
                         final latestMessages = messages.take(3).toList();
 
                         return SizedBox(
@@ -587,7 +642,7 @@ class _BlackCountryBeatsHomePageState
                                 itemBuilder: (context, index) {
                                   final item = latestMessages[index];
                                   final otherUserId = (item['otherUserId'] ?? '').toString();
-                                  final unreadCount = ((item['unreadCount'] ?? 0) as num).toInt();
+                                  final unreadCount = ((item['unreadCount'] ?? 0) as num).toInt(); //amount of unread messages from user
                                   final hasUnread = unreadCount > 0;
 
                                   return InkWell(
@@ -595,6 +650,7 @@ class _BlackCountryBeatsHomePageState
                                     onTap: otherUserId.isEmpty
                                         ? null
                                         : () {
+                                      //navigation to clicked User Messages and Profile
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -607,6 +663,7 @@ class _BlackCountryBeatsHomePageState
                                         ),
                                       );
                                     },
+                                    //unread message bubble and box highlighting
                                     child: Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
@@ -628,6 +685,7 @@ class _BlackCountryBeatsHomePageState
                                         ]
                                             : null,
                                       ),
+                                      //fetches User Profile Image
                                       child: Row(
                                         children: [
                                           Stack(
@@ -673,6 +731,8 @@ class _BlackCountryBeatsHomePageState
                                                 ),
                                             ],
                                           ),
+
+                                          //fetches User Profilename
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: Column(
@@ -688,6 +748,8 @@ class _BlackCountryBeatsHomePageState
                                                     fontWeight: hasUnread ? FontWeight.w800 : FontWeight.w700,
                                                   ),
                                                 ),
+
+                                                //fetches Users Last Message in chat
                                                 const SizedBox(height: 4),
                                                 Text(
                                                   item['lastMessage'] ?? '',

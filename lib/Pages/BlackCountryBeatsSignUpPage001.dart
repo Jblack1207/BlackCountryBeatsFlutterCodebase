@@ -131,7 +131,7 @@ class _BlackCountryBeatsSignUpPage001State
                         ),
                         const SizedBox(height: 24),
 
-                        // first name inpit controller
+                        // first name input controller
                             SizedBox(
                               width: 300,
                               child: TextField(

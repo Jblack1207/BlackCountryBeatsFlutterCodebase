@@ -10,24 +10,8 @@ import '../Helpers/PresenceHelper.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   final PresenceHelper _presenceService = PresenceHelper();
-
-
-
-  // Future<bool> isUsernameTaken(String username) async {
-  //   final normalizedUsername = username.trim();
-  //
-  //   final result = await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .where('username', isEqualTo: normalizedUsername)
-  //       .limit(1)
-  //       .get();
-  //
-  //   //print(result);
-  //   return result.docs.isNotEmpty;
-  // }
 
   Future<void> registerUser({
     required String email,
@@ -38,22 +22,15 @@ class AuthService {
     required String addressLine01,
     required String addressLine02,
     required String postcode,
-    required String county
+    required String county,
   }) async {
-    // final userNameProv = userName.trim();
-    //
-    // final userNameTaken = await isUsernameTaken(userNameProv);
-    //
-    // if (userNameTaken){
-    //   throw FirebaseAuthException(code: 'username-already-in-use', message: 'The Username you have chosen already exists, please choose an alternative');
-    // }
-
     final userCredential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
 
-    final uid = userCredential.user!.uid;
+    final user = userCredential.user;
+    final uid = user!.uid;
 
     await _firestore.collection('users').doc(uid).set({
       'uid': uid,
@@ -67,25 +44,28 @@ class AuthService {
       'email': email,
       'createdAt': FieldValue.serverTimestamp(),
     });
+
+    await user.sendEmailVerification();
+
     await _auth.signOut();
   }
+
+
   Future<void> validateUserAuth() async {
     print(_auth.currentUser?.uid);
     print(_auth.currentUser?.email);
   }
+
   Future<String?> getCurrentUserFirstName() async {
     final user = _auth.currentUser;
-    if (user == null) {
-      return null;
-    }
+    if (user == null) return null;
+
     final doc = await _firestore.collection('users').doc(user.uid).get();
-    if (!doc.exists) {
-      return null;
-    }
+    if (!doc.exists) return null;
+
     final firstName = doc.data()?['firstName'] as String?;
-    if (firstName == null || firstName.length > 10) {
-      return null;
-    }
+    if (firstName == null || firstName.length > 10) return null;
+
     return firstName;
   }
 
@@ -93,22 +73,24 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    try {
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
 
-      return credential;
-    } on FirebaseAuthException catch (e) {
-      print('LOGIN CODE: ${e.code}');
-      print('LOGIN MESSAGE: ${e.message}');
-      rethrow;
-    }
+    await credential.user?.reload();
 
-}
+    return credential;
+  }
+
+
   Future<void> logoutUser(BuildContext context) async {
     await _presenceService.setOnline(false);
+
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {}
+
     await FirebaseAuth.instance.signOut();
 
     Navigator.pushAndRemoveUntil(
@@ -137,6 +119,7 @@ class AuthService {
           (route) => false,
     );
   }
+
   User? getCurrentUser() {
     return _auth.currentUser;
   }
@@ -159,18 +142,26 @@ class AuthService {
   }
 
   Future<UserCredential?> signInWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) return null;
+    print('Google sign-in started');
 
-    final googleAuth = await googleUser.authentication;
+    await _googleSignIn.initialize();
+    print('GoogleSignIn initialized');
+
+    final GoogleSignInAccount googleUser =
+    await _googleSignIn.authenticate();
+    print('Google user authenticated: ${googleUser.email}');
+
+    final GoogleSignInAuthentication googleAuth =
+        googleUser.authentication;
+    print('Google auth token received');
 
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
-    return await _auth.signInWithCredential(credential);
+    final userCredential = await _auth.signInWithCredential(credential);
+    print('Firebase credential sign-in complete: ${userCredential.user?.uid}');
+
+    return userCredential;
   }
-
 }
-

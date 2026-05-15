@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseAuth Helper.dart';
 
 class PublicProfileSearchService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,6 +13,8 @@ class PublicProfileSearchService {
     int? maxMembers,
   }) async {
     final trimmedQuery = query.trim().toLowerCase();
+    final currentUser = AuthService().getCurrentUser();
+    final currentUserId = currentUser?.uid;
 
     final hasTextSearch = trimmedQuery.length >= 3;
     final hasFilters = genre != null ||
@@ -32,13 +35,8 @@ class PublicProfileSearchService {
     }
 
     if (profileType != null) {
-      firebaseQuery =
-          firebaseQuery.where('profileType', isEqualTo: profileType);
+      firebaseQuery = firebaseQuery.where('profileType', isEqualTo: profileType);
     }
-
-    print('query="$query"');
-    print('genre=$genre');
-    print('profileType=$profileType');
 
     final snapshot = await firebaseQuery.get();
 
@@ -48,6 +46,10 @@ class PublicProfileSearchService {
       ...doc.data(),
     })
         .where((profile) {
+      final profileUserId = (profile['userId'] ?? '').toString();
+      final isCurrentUser =
+          currentUserId != null && profileUserId == currentUserId;
+
       final profileName =
       (profile['profileName'] ?? '').toString().toLowerCase();
       final matchesQuery =
@@ -55,18 +57,20 @@ class PublicProfileSearchService {
 
       final rating = ((profile['rating'] ?? 0) as num).toDouble();
       final matchesRating =
-          minimumRating == null || rating <= minimumRating;
+          minimumRating == null || rating >= minimumRating;
 
       final avgPrice =
       ((profile['avgPricePerNight'] ?? 0) as num).toDouble();
       final matchesPrice = maxPrice == null || avgPrice <= maxPrice;
 
-      final members = (profile['memberCount'] ??
+      final members = ((profile['memberCount'] ??
           profile['numberOfMembers'] ??
-          0) as int;
+          0) as num)
+          .toInt();
       final matchesMembers = maxMembers == null || members <= maxMembers;
 
-      return matchesQuery &&
+      return !isCurrentUser &&
+          matchesQuery &&
           matchesRating &&
           matchesPrice &&
           matchesMembers;

@@ -4,7 +4,7 @@ import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseAuth Helper.dar
 import 'package:flutter_project_cmp3023/Pages/BlackCountryBeatsShellPage.dart';
 
 class BlackCountryBeatsCreatePublicProfilePage extends StatefulWidget {
-  final int profileType;
+  final int profileType; //profile type init
 
   const BlackCountryBeatsCreatePublicProfilePage({
     super.key,
@@ -18,8 +18,9 @@ class BlackCountryBeatsCreatePublicProfilePage extends StatefulWidget {
 
 class _BlackCountryBeatsCreatePublicProfilePageState
     extends State<BlackCountryBeatsCreatePublicProfilePage> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; //create Firestore Instance
 
+  //set expected values to ''
   String _bannerImage = '';
   String _profileImage = '';
   String _profileName = '';
@@ -28,8 +29,10 @@ class _BlackCountryBeatsCreatePublicProfilePageState
   String _genre = '';
   String _price = '';
 
+  //for loading symbol checking
   bool _isSaving = false;
 
+  //enabling save button logic
   bool get _canSave {
     return _bannerImage.trim().isNotEmpty &&
         _profileImage.trim().isNotEmpty &&
@@ -40,6 +43,7 @@ class _BlackCountryBeatsCreatePublicProfilePageState
         _price.trim().isNotEmpty;
   }
 
+  //profileType enum conversion
   String _profileTypeLabel(int value) {
     switch (value) {
       case 1:
@@ -53,6 +57,7 @@ class _BlackCountryBeatsCreatePublicProfilePageState
     }
   }
 
+  //edit field box, reused for each field to allow users to edit expected information
   Future<void> _editField({
     required String title,
     required String initialValue,
@@ -105,6 +110,7 @@ class _BlackCountryBeatsCreatePublicProfilePageState
                 cursorColor: Colors.white,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
+                  //changes for each element
                   hintText: 'Enter $title',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
@@ -151,14 +157,18 @@ class _BlackCountryBeatsCreatePublicProfilePageState
     );
   }
 
+  //save profile function
   Future<void> _saveProfile() async {
+    //fetches current user
     final user = AuthService().getCurrentUser();
     if (user == null || !_canSave || _isSaving) return;
 
+    //set state of saving to true if function is running
     setState(() {
       _isSaving = true;
     });
 
+    //profileData assignment for passing to Firestore
     final profileData = {
       'userId': user.uid,
       'profileType': widget.profileType,
@@ -175,11 +185,13 @@ class _BlackCountryBeatsCreatePublicProfilePageState
       'createdAt': FieldValue.serverTimestamp(),
     };
 
+    //try to publish profileData to publicProfiles collection
     try {
       await _firestore.collection('publicProfiles').add(profileData);
 
       if (!mounted) return;
 
+      //dialog box appears for 'Profile Saved'
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -231,6 +243,7 @@ class _BlackCountryBeatsCreatePublicProfilePageState
 
       if (!mounted) return;
 
+      //pushes user to Profile Page if successfully saved
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -246,6 +259,7 @@ class _BlackCountryBeatsCreatePublicProfilePageState
     }
   }
 
+  //edit button widget, utilises editfield
   Widget _editButton(VoidCallback onPressed) {
     return InkWell(
       onTap: onPressed,
@@ -266,6 +280,7 @@ class _BlackCountryBeatsCreatePublicProfilePageState
     );
   }
 
+  //text box detail for each element of the page
   Widget _detailRow({
     required IconData icon,
     required String label,
@@ -303,9 +318,10 @@ class _BlackCountryBeatsCreatePublicProfilePageState
     );
   }
 
+  //page widget builder, builds the entire page for users to edit
   @override
   Widget build(BuildContext context) {
-    final topInset = MediaQuery.of(context).padding.top - 60;
+    final topInset = (MediaQuery.of(context).padding.top - 60).clamp(0.0, double.infinity);
 
     return Scaffold(
       backgroundColor: const Color(0xFF1F1F1F),
@@ -319,294 +335,294 @@ class _BlackCountryBeatsCreatePublicProfilePageState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF27272A),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(28),
-                      bottomRight: Radius.circular(28),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 12,
-                        offset: Offset(0, 6),
+                    Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF27272A),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(28),
+                          bottomRight: Radius.circular(28),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          SizedBox(height: topInset),
-                          Stack(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                height: 170,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFD9D9D9),
-                                  image: _bannerImage.isNotEmpty
-                                      ? DecorationImage(
-                                    image: NetworkImage(_bannerImage),
-                                    fit: BoxFit.cover,
-                                  )
-                                      : null,
-                                ),
-                                child: _bannerImage.isEmpty
-                                    ? const Center(
-                                  child: Icon(
-                                    Icons.image_outlined,
-                                    color: Colors.black26,
-                                    size: 90,
+                              SizedBox(height: topInset),
+                              Stack(
+                                children: [
+                                  Container(
+                                    height: 170,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFD9D9D9),
+                                      image: _bannerImage.isNotEmpty
+                                          ? DecorationImage(
+                                        image: NetworkImage(_bannerImage),
+                                        fit: BoxFit.cover,
+                                      )
+                                          : null,
+                                    ),
+                                    child: _bannerImage.isEmpty
+                                        ? const Center(
+                                      child: Icon(
+                                        Icons.image_outlined,
+                                        color: Colors.black26,
+                                        size: 90,
+                                      ),
+                                    )
+                                        : null,
                                   ),
-                                )
-                                    : null,
+                                  Positioned(
+                                    right: 14,
+                                    bottom: 14,
+                                    child: _editButton(
+                                          () => _editField(
+                                        title: 'Banner Image URL',
+                                        initialValue: _bannerImage,
+                                        onSaved: (value) {
+                                          setState(() {
+                                            _bannerImage = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Positioned(
-                                right: 14,
-                                bottom: 14,
-                                child: _editButton(
-                                      () => _editField(
-                                    title: 'Banner Image URL',
-                                    initialValue: _bannerImage,
-                                    onSaved: (value) {
-                                      setState(() {
-                                        _bannerImage = value;
-                                      });
-                                    },
-                                  ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            'Rating',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: List.generate(
+                                              5,
+                                                  (index) => const Padding(
+                                                padding: EdgeInsets.symmetric(horizontal: 2),
+                                                child: Icon(
+                                                  Icons.star_border,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          const Text(
+                                            'Followers: 0',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            _profileName.isEmpty
+                                                ? 'Enter Preferred Artist Name...'
+                                                : _profileName,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        _editButton(
+                                              () => _editField(
+                                            title: 'Profile Name',
+                                            initialValue: _profileName,
+                                            onSaved: (value) {
+                                              setState(() {
+                                                _profileName = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          width: 22,
+                                          height: 22,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFFE7E7E7),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.verified,
+                                            color: Colors.black87,
+                                            size: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            _bio.isEmpty ? 'Enter Bio here...' : _bio,
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        _editButton(
+                                              () => _editField(
+                                            title: 'Bio',
+                                            initialValue: _bio,
+                                            maxLines: 4,
+                                            onSaved: (value) {
+                                              setState(() {
+                                                _bio = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            height: 38,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF2A2823),
+                                              borderRadius: BorderRadius.circular(24),
+                                            ),
+                                            child: const Center(
+                                              child: Text(
+                                                'Follow',
+                                                style: TextStyle(
+                                                  color: Colors.black54,
+                                                  fontSize: 14,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Expanded(
+                                          child: Container(
+                                            height: 38,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF2A2823),
+                                              borderRadius: BorderRadius.circular(24),
+                                            ),
+                                            child: const Center(
+                                              child: Text(
+                                                'Message',
+                                                style: TextStyle(
+                                                  color: Colors.black54,
+                                                  fontSize: 14,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Rating',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                        ),
+
+                          Positioned(
+                            left: 18,
+                            top: topInset + 95,
+                            child: SizedBox(
+                              width: 150,
+                              height: 150,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: 150,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: const Color(0xFFD9D9D9),
+                                      border: Border.all(
+                                        color: const Color(0xFF394046),
+                                        width: 6,
                                       ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: List.generate(
-                                          5,
-                                              (index) => const Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 2),
-                                            child: Icon(
-                                              Icons.star_border,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      const Text(
-                                        'Followers: 0',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ],
+                                      image: _profileImage.isNotEmpty
+                                          ? DecorationImage(
+                                        image: NetworkImage(_profileImage),
+                                        fit: BoxFit.cover,
+                                      )
+                                          : null,
+                                    ),
+                                    child: _profileImage.isEmpty
+                                        ? const Icon(
+                                      Icons.image_outlined,
+                                      size: 60,
+                                      color: Colors.black26,
+                                    )
+                                        : null,
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        _profileName.isEmpty
-                                            ? 'Enter Preferred Artist Name...'
-                                            : _profileName,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _editButton(
+                                  Positioned(
+                                    right: 0,
+                                    bottom: 8,
+                                    child: _editButton(
                                           () => _editField(
-                                        title: 'Profile Name',
-                                        initialValue: _profileName,
+                                        title: 'Profile Image URL',
+                                        initialValue: _profileImage,
                                         onSaved: (value) {
                                           setState(() {
-                                            _profileName = value;
+                                            _profileImage = value;
                                           });
                                         },
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      width: 22,
-                                      height: 22,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFE7E7E7),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.verified,
-                                        color: Colors.black87,
-                                        size: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        _bio.isEmpty ? 'Enter Bio here...' : _bio,
-                                        style: const TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _editButton(
-                                          () => _editField(
-                                        title: 'Bio',
-                                        initialValue: _bio,
-                                        maxLines: 4,
-                                        onSaved: (value) {
-                                          setState(() {
-                                            _bio = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        height: 38,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF2A2823),
-                                          borderRadius: BorderRadius.circular(24),
-                                        ),
-                                        child: const Center(
-                                          child: Text(
-                                            'Follow',
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 14,
-                                              fontStyle: FontStyle.italic,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    Expanded(
-                                      child: Container(
-                                        height: 38,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF2A2823),
-                                          borderRadius: BorderRadius.circular(24),
-                                        ),
-                                        child: const Center(
-                                          child: Text(
-                                            'Message',
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 14,
-                                              fontStyle: FontStyle.italic,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-
-                      Positioned(
-                        left: 18,
-                        top: topInset + 95,
-                        child: SizedBox(
-                          width: 150,
-                          height: 150,
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: 150,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: const Color(0xFFD9D9D9),
-                                  border: Border.all(
-                                    color: const Color(0xFF394046),
-                                    width: 6,
-                                  ),
-                                  image: _profileImage.isNotEmpty
-                                      ? DecorationImage(
-                                    image: NetworkImage(_profileImage),
-                                    fit: BoxFit.cover,
-                                  )
-                                      : null,
-                                ),
-                                child: _profileImage.isEmpty
-                                    ? const Icon(
-                                  Icons.image_outlined,
-                                  size: 60,
-                                  color: Colors.black26,
-                                )
-                                    : null,
-                              ),
-                              Positioned(
-                                right: 0,
-                                bottom: 8,
-                                child: _editButton(
-                                      () => _editField(
-                                    title: 'Profile Image URL',
-                                    initialValue: _profileImage,
-                                    onSaved: (value) {
-                                      setState(() {
-                                        _profileImage = value;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
                       child: Column(

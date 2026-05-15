@@ -18,8 +18,11 @@ class BlackCountryBeatsMessageHomePage extends StatefulWidget {
 
 class _BlackCountryBeatsMessageHomePageState
     extends State<BlackCountryBeatsMessageHomePage> {
+  //creates SocketService for Page
   final SocketService _socketService = SocketService();
+  //creates FollowingService for Page
   final FollowingService _followingService = FollowingService();
+  //creates ChatService for Page
   final ChatService _chatService = ChatService();
 
 
@@ -31,6 +34,7 @@ class _BlackCountryBeatsMessageHomePageState
     _initMessages();
   }
 
+  //create socket connection to server.js
   Future<void> _initMessages() async {
     final user = AuthService().getCurrentUser();
 
@@ -46,25 +50,29 @@ class _BlackCountryBeatsMessageHomePageState
     });
 
     _socketService.connect(
-      serverUrl: 'http://192.168.0.113:3000',
+      serverUrl: 'http://10.128.3.63:3000',
       userId: _userId!,
     );
   }
 
+  //show new chat pop up for it user clicks the +
   Future<void> _showNewChatPopup() async {
+    //uses followingservice to fetch following userProfiles
     final profiles = await _followingService.getFollowingProfilesStream().first;
 
-    final chatTargets = profiles.where((profile) {
+    final  chatTargets = profiles.where((profile) {
       return profile['userId'] != _userId;
     }).toList();
 
     if (!mounted) return;
 
+    //bottom of the screen pop up
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (sheetContext) {
+        //uses TextEditingController to read and retrieve input for search
         final searchController = TextEditingController();
         List<Map<String, dynamic>> filteredProfiles = List.from(chatTargets);
 
@@ -88,6 +96,7 @@ class _BlackCountryBeatsMessageHomePageState
               });
             }
 
+            //Container Build for Start New Chat Pop Up
             return Container(
               decoration: const BoxDecoration(
                 color: Color(0xFF27272A),
@@ -139,6 +148,7 @@ class _BlackCountryBeatsMessageHomePageState
                       ),
                     ),
                     const SizedBox(height: 16),
+                    //no profiles = message
                     if (filteredProfiles.isEmpty)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 24),
@@ -153,17 +163,20 @@ class _BlackCountryBeatsMessageHomePageState
                           shrinkWrap: true,
                           itemCount: filteredProfiles.length,
                           separatorBuilder: (_, __) => const SizedBox(height: 10),
+                          //if there are profiles, they are returned
                           itemBuilder: (context, index) {
                             final profile = filteredProfiles[index];
 
                             return InkWell(
                               borderRadius: BorderRadius.circular(16),
                               onTap: () async {
+                                //checking for whether chat already exists
                                 final otherUserId =
                                 (profile['userId'] ?? '').toString();
                                 final otherUserProfileId =
                                 (profile['id'] ?? '').toString();
 
+                                //id validation
                                 if (_userId == null ||
                                     otherUserId.isEmpty ||
                                     otherUserProfileId.isEmpty) {
@@ -181,6 +194,8 @@ class _BlackCountryBeatsMessageHomePageState
 
                                 if (currentUserProfileId.isEmpty) return;
 
+
+                                //create chat relationship document
                                 final chatId = await _chatService.getOrCreateChat(
                                   currentUserId: _userId!,
                                   otherUserId: otherUserId,
@@ -192,12 +207,15 @@ class _BlackCountryBeatsMessageHomePageState
 
                                 Navigator.pop(sheetContext);
 
+
+                                //take user to chat thread page with profile id of other user
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => ChatThreadPage(
                                       chatId: chatId,
                                       otherUserId: otherUserId,
+                                      //name protection if missing
                                       otherUserName: profile['profileName'] ?? 'Unknown',
                                     ),
                                   ),
@@ -214,6 +232,7 @@ class _BlackCountryBeatsMessageHomePageState
                                   children: [
                                     CircleAvatar(
                                       radius: 24,
+                                      //profileImage displayed top of page
                                       backgroundColor: const Color(0xFF3A3A3D),
                                       backgroundImage: (profile['profileImage'] ?? '')
                                           .toString()
@@ -231,6 +250,7 @@ class _BlackCountryBeatsMessageHomePageState
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
+                                      //name missing protection
                                       child: Text(
                                         profile['profileName'] ?? 'Unknown',
                                         style: const TextStyle(
@@ -261,51 +281,8 @@ class _BlackCountryBeatsMessageHomePageState
     );
   }
 
-  Future<void> _openChatFromSearch(Map<String, dynamic> profile) async {
-    final currentUser = AuthService().getCurrentUser();
-    if (currentUser == null) return;
 
-    final currentUserId = currentUser.uid;
-    final otherUserId = (profile['userId'] ?? '').toString();
-    final otherUserProfileId = (profile['id'] ?? '').toString();
-
-    if (otherUserId.isEmpty || otherUserProfileId.isEmpty) {
-      return;
-    }
-
-    final myProfileSnapshot = await FirebaseFirestore.instance
-        .collection('publicProfiles')
-        .where('userId', isEqualTo: currentUserId)
-        .limit(1)
-        .get();
-
-    if (myProfileSnapshot.docs.isEmpty) {
-      return;
-    }
-
-    final currentUserProfileId = myProfileSnapshot.docs.first.id;
-
-    final chatId = await _chatService.getOrCreateChat(
-      currentUserId: currentUserId,
-      otherUserId: otherUserId,
-      currentUserProfileId: currentUserProfileId,
-      otherUserProfileId: otherUserProfileId,
-    );
-
-    if (!mounted) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ChatThreadPage(
-          chatId: chatId,
-          otherUserId: otherUserId,
-          otherUserName: profile['profileName'] ?? 'Unknown',
-        ),
-      ),
-    );
-  }
-
+  //build message list
   Future<List<Map<String, dynamic>>> _buildMessageHomeItems(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> chatDocs,
       ) async {
@@ -315,6 +292,7 @@ class _BlackCountryBeatsMessageHomePageState
       try {
         final chatData = chatDoc.data();
         final members = List<String>.from(chatData['members'] ?? []);
+        //setting unreadCounts
         final unreadCounts =
         Map<String, dynamic>.from(chatData['unreadCounts'] ?? {});
 
@@ -325,6 +303,7 @@ class _BlackCountryBeatsMessageHomePageState
 
         if (otherUserId.isEmpty) continue;
 
+        //fetches publicProfile where userId is eq otherUserId (the one clicked by user)
         final profileSnapshot = await FirebaseFirestore.instance
             .collection('publicProfiles')
             .where('userId', isEqualTo: otherUserId)
@@ -335,6 +314,7 @@ class _BlackCountryBeatsMessageHomePageState
 
         final profileData = profileSnapshot.docs.first.data();
 
+        //add message block
         results.add({
           'chatId': chatDoc.id,
           'otherUserId': otherUserId,
@@ -395,6 +375,7 @@ class _BlackCountryBeatsMessageHomePageState
                   ),
                 ],
               ),
+              //top section
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -423,6 +404,7 @@ class _BlackCountryBeatsMessageHomePageState
                         if (followedProfiles.isEmpty) {
                           return const Center(
                             child: Text(
+                              //only show when profiles are empty
                               'TIP: When you follow someone, their account will appear here',
                               style: TextStyle(
                                 color: Colors.white70,
@@ -432,6 +414,7 @@ class _BlackCountryBeatsMessageHomePageState
                           );
                         }
 
+                        //returns list of followed profiles
                         return ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: followedProfiles.length,
@@ -488,6 +471,7 @@ class _BlackCountryBeatsMessageHomePageState
                                           ),
                                         ),
                                       ),
+                                      //presence detection dot shown if true, hidden if false
                                       if ((profile['isOnline'] ?? false) == true)
                                         Positioned(
                                           right: 2,
@@ -508,6 +492,7 @@ class _BlackCountryBeatsMessageHomePageState
                                     ],
                                   ),
                                   const SizedBox(height: 6),
+                                  //own user shown on top section
                                   Text(
                                     index == 0
                                         ? 'You'
@@ -539,6 +524,8 @@ class _BlackCountryBeatsMessageHomePageState
         left: 15,
         right: 15,
         bottom: 130,
+
+        //listens to user chat stream in real time
         child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: _userId == null ? null : _chatService.messageHomeStream(_userId!),
           builder: (context, snapshot) {
@@ -569,6 +556,7 @@ class _BlackCountryBeatsMessageHomePageState
 
             final chatDocs = snapshot.data!.docs;
 
+            //creates List view based on Stream results/existing messages
             return FutureBuilder<List<Map<String, dynamic>>>(
               future: _buildMessageHomeItems(chatDocs),
               builder: (context, messageSnapshot) {
@@ -582,6 +570,7 @@ class _BlackCountryBeatsMessageHomePageState
                   );
                 }
 
+                //progress indicator
                 if (!messageSnapshot.hasData) {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -590,6 +579,7 @@ class _BlackCountryBeatsMessageHomePageState
 
                 final messages = messageSnapshot.data ?? [];
 
+                //list view of messages
                 return ListView.separated(
                   padding: const EdgeInsets.only(top: 8),
                   itemCount: messages.length + 1,

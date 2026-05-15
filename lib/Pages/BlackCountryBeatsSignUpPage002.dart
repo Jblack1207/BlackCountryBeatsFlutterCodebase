@@ -324,7 +324,7 @@ class _BlackCountryBeatsSignUpPage002State
                                         postcode: widget.postcode,
                                         county: widget.county
                                     );
-                                    //NEED TO CHANGE TO EITHER ACCOUNT VALIDATION OR HOME PAGE
+                                    //Navigate back to login if account creation is successful
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(

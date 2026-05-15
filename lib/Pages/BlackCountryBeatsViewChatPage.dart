@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project_cmp3023/Firebase Helpers/FirebaseAuth Helper.dart';
@@ -33,6 +35,18 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     _initChat();
   }
 
+
+  String getSocketServerUrl() {
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:3000';
+    } else if (Platform.isIOS) {
+      return 'http://127.0.0.1:3000';
+    } else {
+      return 'http://localhost:3000';
+    }
+  }
+
+
   Future<void> _initChat() async {
     final user = AuthService().getCurrentUser();
     if (user == null || !mounted) return;
@@ -47,9 +61,10 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     );
 
     _socketService.connect(
-      serverUrl: 'http://192.168.0.113:3000',
+      serverUrl: getSocketServerUrl(),
       userId: _userId!,
     );
+;
 
     _socketService.joinChat(widget.chatId);
   }
@@ -65,6 +80,10 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty || _userId == null) return;
+
+    print('Sending message: $text');
+    print('Chat ID: ${widget.chatId}');
+    print('Sender ID: $_userId');
 
     _messageController.clear();
 

@@ -3,6 +3,12 @@
         android:label="flutter_project_cmp3023"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD4Jfv7HuuMGgK1Z0cD_MMmmoZSIPw5Jj8"
+            />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

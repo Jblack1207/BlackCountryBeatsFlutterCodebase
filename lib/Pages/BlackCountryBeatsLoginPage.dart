@@ -21,15 +21,16 @@ class BlackCountryBeatsLoginScreen extends StatefulWidget {
 ///class state definitions and logic control
 class _BlackCountryBeatsLoginScreenState
     extends State<BlackCountryBeatsLoginScreen> {
-  bool _obscurePassword = true;
-  bool _emailError = false;
-  bool _passwordError = false;
+  bool _obscurePassword = true; //control hiding of password
+  bool _emailError = false; //error email highlighting control
+  bool _passwordError = false; //error password highlighting control
 
 
   //email and password validation for enabling log in button
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  //Login button enable logic
   bool get _isLoginEnabled {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -303,8 +304,6 @@ class _BlackCountryBeatsLoginScreenState
                                   }
                                 }
                                     : null,
-
-
                                 style: ElevatedButton.styleFrom(
                                   //enabled colouring
                                   backgroundColor: const Color(0xffffc21c).withOpacity(0.95),
@@ -374,9 +373,34 @@ class _BlackCountryBeatsLoginScreenState
                               assetPath: 'assets/images/image8.png',
                               backgroundColor: const Color(0xcc27272A),
                               borderColor: const Color (0xFF394046),
-                              onPressed: () async {
-                                await AuthService().signInWithGoogle();
-                              },
+                                onPressed: () async {
+                                  try {
+                                    final credential = await AuthService().signInWithGoogle();
+
+                                    if (credential == null) {
+                                      return;
+                                    }
+
+                                    if (!context.mounted) return;
+
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const BlackCountryBeatsShellPage(initialIndex: 1,),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    debugPrint('Google sign-in error: $e');
+
+                                    if (!context.mounted) return;
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Google sign-in failed: $e'),
+                                      ),
+                                    );
+                                  }
+                                },
                             ),
                             const SizedBox(width: 24),
                             _socialLogoButton(

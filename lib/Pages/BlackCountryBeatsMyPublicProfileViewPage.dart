@@ -8,6 +8,7 @@ class BlackCountryBeatsMyPublicProfileViewPage extends StatelessWidget {
     required this.profile,
   });
 
+  //_profileType label conversaion num -> string
   String _profileTypeLabel(int? value) {
     switch (value) {
       case 1:
@@ -57,18 +58,27 @@ class BlackCountryBeatsMyPublicProfileViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topInset = MediaQuery.of(context).padding.top - 62;
+    //gap between image and top of screen
+    final topInset = (MediaQuery.of(context).padding.top - 60).clamp(0.0, double.infinity);
+    //profile banner image
     final bannerImage = (profile['backgroundImage'] ?? '').toString();
+    //profile image
     final profileImage = (profile['profileImage'] ?? '').toString();
+    //profile Name
     final profileName = (profile['profileName'] ?? '').toString();
+    //bio
     final bio = (profile['bio'] ?? '').toString();
+    //location
     final location = (profile['location'] ?? '').toString();
+    //genre
     final genre = (profile['genre'] ?? '').toString();
+    //avg price per night
     final priceValue = profile['avgPricePerNight'];
+    //follows
     final followers = '${profile['followers'] ?? 0}';
+    //rating - needs expansion
     final rating = (profile['rating'] as num?)?.toDouble() ?? 0;
-    final profileType =
-    _profileTypeLabel((profile['profileType'] as num?)?.toInt());
+
 
     return Scaffold(
       backgroundColor: const Color(0xFF1F1F1F),
@@ -224,17 +234,25 @@ class BlackCountryBeatsMyPublicProfileViewPage extends StatelessWidget {
                                         color: const Color(0xFF2A2823),
                                         borderRadius: BorderRadius.circular(24),
                                       ),
-                                      child: const Center(
-                                        child: Text(
-                                          'Follow',
-                                          style: TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 14,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.w700,
-                                          ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.person_add_alt_1,
+                                              size: 22,
+                                              color: Colors.black26,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'Follow',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontStyle: FontStyle.italic,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 20),
@@ -245,17 +263,25 @@ class BlackCountryBeatsMyPublicProfileViewPage extends StatelessWidget {
                                         color: const Color(0xFF2A2823),
                                         borderRadius: BorderRadius.circular(24),
                                       ),
-                                      child: const Center(
-                                        child: Text(
-                                          'Message',
-                                          style: TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 14,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.w700,
-                                          ),
+                                        child: const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.mail_outline,
+                                              size: 22,
+                                              color: Colors.black26,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              'Message',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontStyle: FontStyle.italic,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
                                     ),
                                   ),
                                 ],
